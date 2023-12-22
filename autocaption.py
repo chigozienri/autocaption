@@ -1,4 +1,3 @@
-import streamlit as st
 import os, json
 from faster_whisper import WhisperModel
 
@@ -7,15 +6,15 @@ import ffmpeg
 from moviepy.editor import TextClip, CompositeVideoClip, ColorClip, VideoFileClip, ColorClip
 
 import numpy as np
-
-
+import os
 
 start = time.time()
 
 directory = tempfile.gettempdir()
 
 def create_audio(videofilename):
-    audiofilename = videofilename.replace(".mp4", '.mp3')
+    extension = os.path.splitext(videofilename)[1]
+    audiofilename = videofilename.replace(extension, '.mp3')
 
     # Create the ffmpeg input stream
     input_stream = ffmpeg.input(videofilename)
@@ -26,7 +25,7 @@ def create_audio(videofilename):
     # Save the audio stream as an MP3 file
     output_stream = ffmpeg.output(audio, audiofilename)
 
-    # Overwrite output file if it already exists
+    # # Overwrite output file if it already exists
     output_stream = ffmpeg.overwrite_output(output_stream)
 
     ffmpeg.run(output_stream)
@@ -126,14 +125,7 @@ def create_caption(textJSON, framesize, v_type,highlight_color, fontsize, color,
     x_buffer = frame_width * 1 / 10
 
     max_line_width = frame_width - 2 * (x_buffer)
-    # st.write(frame_height)
-    # if v_type.lower() != 'reels':
-    #     fontsize = int(frame_height * 0.065)  # 7.5 percent of video height
-    # else:
-    #     fontsize = int(frame_height * 0.04)  # 5 percent of video height for Reels
-
     fontsize = int(frame_height * fontsize/100)  # 5 percent of video height for Reels
-    # st.write(fontsize)
     space_width = 0
     space_height = 0
 
@@ -141,7 +133,7 @@ def create_caption(textJSON, framesize, v_type,highlight_color, fontsize, color,
         bold_font_path = "Poppins/Poppins-ExtraBold.ttf"
 
         duration = wordJSON['end'] - wordJSON['start']
-        word_clip = TextClip(wordJSON['word'], font=bold_font_path, fontsize=fontsize, color=color,
+        word_clip = TextClip(txt=wordJSON['word'], font=bold_font_path, fontsize=fontsize, color=color,
                              stroke_color=stroke_color,
                              stroke_width=stroke_width , kerning=-5).set_start(textJSON['start']).set_duration(
             full_duration)
@@ -218,8 +210,6 @@ def get_final_cliped_video(videofilename, linelevel_subtitles, v_type , subs_pos
         max_height = 0
 
         for position in positions:
-            # print (out_clip.pos)
-            # break
             x_pos, y_pos = position['x_pos'], position['y_pos']
             width, height = position['width'], position['height']
 
@@ -249,7 +239,6 @@ def get_final_cliped_video(videofilename, linelevel_subtitles, v_type , subs_pos
     destination = os.path.join(directory, 'output.mp4')
     # Save the final clip as a video file with the audio included
     final_video.write_videofile(destination, fps=24, codec="libx264", audio_codec="aac")
-    # st.video(final_video)
     return destination
 
 
@@ -262,7 +251,6 @@ def add_subtitle(videofilename, audiofilename, v_type, subs_position, highlight_
 
     linelevel_subtitles = split_text_into_lines(wordlevel_info, v_type, MaxChars)
     print("line_level_subtitles :", linelevel_subtitles)
-    st.session_state.linelevel_subtitles = linelevel_subtitles
 
     for line in linelevel_subtitles:
         json_str = json.dumps(line, indent=4)
@@ -270,15 +258,6 @@ def add_subtitle(videofilename, audiofilename, v_type, subs_position, highlight_
     outputfile = get_final_cliped_video(videofilename, linelevel_subtitles, v_type, subs_position,highlight_color , fontsize, opacity , color)
     return outputfile
 
-
-def show_audio_video(audiofilename, videofilename):
-    st.video(videofilename)
-
-
-
-
-
-@st.cache_resource
 def load_model():
     print('Loading the Whisper Model into the App............')
 
@@ -289,138 +268,4 @@ def load_model():
         model = WhisperModel(model_size)
         print("Error: ", e)
 
-    st.success("Loaded model!")
     return model
-
-
-
-
-st.title('Autocaption by [Fictions.ai](https://fictions.ai)')
-st.write("[GitHub Repo](https://github.com/fictions-ai/autocaption) - [x.com/thibaudz](https://x.com/thibaudz)")
-
-st.title('\n')
-
-if 'whisp_model' not in st.session_state:
-    print("Downloading dependecies...")
-
-    try:
-        # install_img_magic_commands_linux()
-        print("Dependencise for video editing downloaded successfully.")
-        st.session_state.img_magik = True
-    except Exception as e:
-        print('Some Errors ocurred while loading: ', e)
-
-    model = load_model()
-    st.session_state.whisp_model = model
-    print('whisper Loaded.')
-
-video_file = st.file_uploader("Choose a video file", type=["mp4", "avi", "mov"])
-
-col1, col2 = st.columns(2)
-
-subs_position = st.selectbox(
-   "Select the subtitles position",
-   ( "bottom75", "center" , "top", "bottom", "left", "right" ),
-   placeholder="Select subtitless position...",
-)
-
-color = st.text_input("Select the caption color", "white")
-v_type = st.radio("Select the Video ratio", ['9x16', "other aspect ratio"])
-
-# st.write(v_type)
-# if st.button('Advance Options'):
-with st.expander("More Options"):
-
-    highlight_color = st.text_input("Highlight Color", "yellow")
-    if v_type != "9x16":
-        fontsize = st.number_input("Fontsize (7.0 is ideal for videos)", min_value=1.0 , value=7.0)
-        MaxChars = st.number_input("Max Characters space for subtitles  (20 is ideal for videos, increasing this will increase the subtitles width)", min_value=1, value=20)
-
-    else:
-        fontsize = st.number_input("Fontsize (4.0 is ideal for reels)", min_value=1.0 , value=4.0)
-        MaxChars = st.number_input("Max Characters space for subtitles  (10 is ideal for reels, increasing this will increase the subtitles width)", min_value=1, value=10)
-    opacity = st.number_input("Opacity for the subtitles background (Set it to 0 for no background) Range: 0 - 1.0 ", min_value=0.0, value=0.0)
-button = st.button("Generate Video")
-try:
-    if video_file is not None and button:
-        video_url = None
-        clip_sbtitle = False
-
-        videofilename = os.path.join(directory, video_file.name)
-        with open(videofilename, "wb") as f:
-            f.write(video_file.read())
-
-        st.session_state.videofile_path = videofilename
-        st.session_state.audio = None
-
-    if clip_sbtitle:
-        video_file = None
-        # download_video(video_url)
-        videofilename = os.path.join(directory, "video.mp4")
-        st.session_state.videofile_path = videofilename
-        st.session_state.audio = None
-
-        if 'outputfile_path' in st.session_state and st.session_state.outputfile_path is not None:
-            st.session_state.outputfile_path = None
-
-    if "edit" not in st.session_state:
-        st.session_state.edit = False
-
-
-    if video_file and subs_position:
-
-        # if 'outputfile_path'  in st.session_state and st.session_state.outputfile_path is not None:
-        #   st.session_state.outputfile_path = None
-
-        videofilename = st.session_state.videofile_path
-        # st.write("Title :", videofilename.split('\\')[-1])
-
-        st.video(videofilename)
-
-        cols = st.columns(2)
-
-
-
-        # with cols[1]:
-
-        st.session_state.edit = True
-
-        try:
-            if st.session_state.audio is None:
-                with st.spinner('Converting Audio.......'):
-                    audiofilename = create_audio(videofilename)
-                    st.success('Audio Created')
-                    st.session_state.audio = audiofilename
-
-            audiofilename = st.session_state.audio
-            with st.spinner('Editing Video.......'):
-                if 'img_magik' in st.session_state:
-                    try:
-                        model = st.session_state.whisp_model
-                        wordlevel_info = transcribe_audio(model, audiofilename)
-                        print(type(wordlevel_info))
-                        import ast
-                        wordlevel_info = st.text_area("Edit the transcription (optional):", wordlevel_info)
-                        wordlevel_info = ast.literal_eval(wordlevel_info)
-                        print(type(wordlevel_info))
-
-                        outputfile = add_subtitle(videofilename, audiofilename, v_type, subs_position, highlight_color, fontsize, opacity, MaxChars , color , wordlevel_info)
-
-                    except Exception as e:
-                        outputfile = videofilename
-                        print('There is an erro:', e)
-                        st.session_state.add_subtitles = False
-
-                    st.session_state.add_subtitles = True
-                else:
-                    outputfile = videofilename
-                st.session_state.outputfile_path = outputfile
-                st.success('Video Created')
-        except Exception as e:
-            st.write('There is an error, please refresh the page or upload other video:', e)
-
-        if 'outputfile_path' in st.session_state and st.session_state.outputfile_path is not None:
-            show_audio_video(st.session_state.audio, st.session_state.outputfile_path)
-
-except Exception as e:
-    print(e)

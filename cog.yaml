@@ -1,0 +1,48 @@
+# Configuration for Cog ⚙️
+# Reference: https://github.com/replicate/cog/blob/main/docs/yaml.md
+
+build:
+  # set to true if your model requires a GPU
+  gpu: true
+
+  # a list of ubuntu apt packages to install
+  system_packages:
+    - "ffmpeg"
+    - "imagemagick"
+  #   - "libgl1-mesa-glx"
+  #   - "libglib2.0-0"
+
+  # python version in the form '3.11' or '3.11.4'
+  python_version: "3.11"
+
+  # a list of packages in the format <package-name>==<version>
+  python_packages:
+  #   - "numpy==1.19.4"
+  #   - "torch==1.8.0"
+  #   - "torchvision==0.9.0"
+  #   - "torchaudio==0.8.0"
+    - "faster_whisper==0.7.0"
+    - "ffmpeg==1.4"
+    - "ffmpeg_python==0.2.0"
+    - "googletrans==3.1.0a0"
+    - "moviepy==2.0.0.dev2"
+    - "numpy"
+    - "openai_whisper==20230314"
+    - "pandas==2.0.3"
+    - "pydub==0.25.1"
+    - "setuptools==58.1.0"
+    - "spacytextblob==4.0.0"
+    - "SpeechRecognition==3.10.0"
+    # - "streamlit==1.25.0"
+    # - "streamlit_extras==0.3.0"
+
+
+
+  # commands run after the environment is setup
+  run:
+    - "sed -i '/@\\*/d' $(identify -list policy | grep 'policy.xml' | awk '{print $NF}')"
+  #   - "echo env is ready!"
+  #   - "echo another command if needed"
+
+# predict.py defines how predictions are run on your model
+predict: "predict.py:Predictor"
