@@ -299,7 +299,6 @@ def get_final_cliped_video(
 
 def add_subtitle(
     videofilename,
-    audiofilename,
     v_type,
     subs_position,
     highlight_color,
@@ -310,7 +309,6 @@ def add_subtitle(
     wordlevel_info,
 ):
     print("video type is: " + v_type)
-    print("Video and Audio filesare : ", videofilename, audiofilename)
 
     print("word_level: ", wordlevel_info)
 
