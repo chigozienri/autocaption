@@ -39,9 +39,13 @@ class Predictor(BasePredictor):
         ),
         color: str = Input(description="Caption color", default="white"),
         highlight_color: str = Input(description="Highlight color", default="yellow"),
-        fontsize: float = Input(description="Fontsize", default=7.0),
+        fontsize: float = Input(
+            description="Font size. 7.0 is good for videos, 4.0 is good for reels",
+            default=7.0,
+        ),
         MaxChars: int = Input(
-            description="Max Characters space for subtitles", default=20
+            description="Max characters space for subtitles. 20 is good for videos, 10 is good for reels",
+            default=20,
         ),
         opacity: float = Input(
             description="Opacity for the subtitles background", default=0.0
