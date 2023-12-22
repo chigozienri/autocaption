@@ -1,40 +1,18 @@
-# autocaption
+# Cog ⚙️ Autocaption
+This is a [https://cog.run](Cog) implementation of [https://github.com/fictions-ai/autocaption](autocaption).
 
-Add Nice Captions for your video
-
-## 🚀 Updates
-**2023.12.20**
-- Release of the first version
-
-## 🔗 Requirements
-
-- ImageMagick: download it from the [official imagemagick site](https://imagemagick.org/script/download.php). Follow the instructions appropriate for your operating system.
 
 ##  Installation
 
-Clone the repo
-
-    git clone https://github.com/fictions-ai/autocaption
-
+```bash
+    git clone https://github.com/chigozienri/autocaption
     cd autocaption
-
-Create environment
-
-    python -m venv venv
-
-activate the environment
-
-    venv/Scripts/activate
-
-install
-
-    pip install -r requirements.txt
-
-    
-
+```
 ##  Usage
 
-    streamlit run app.py
+```bash
+    cog predict -i video_file_input=@path/to/video.mp4
+```
 
 
 ## Contribution
