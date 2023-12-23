@@ -11,6 +11,11 @@ from cog import BasePredictor, Input, Path
 
 import autocaption
 
+if __name__ == "__main__":
+
+    def Input(default=None, **kwargs):
+        return default
+
 
 class Predictor(BasePredictor):
     def setup(self) -> None:
@@ -50,6 +55,24 @@ class Predictor(BasePredictor):
         opacity: float = Input(
             description="Opacity for the subtitles background", default=0.0
         ),
+        font: str = Input(
+            description="Font",
+            default="Poppins/Poppins-ExtraBold.ttf",
+            choices=[
+                "Poppins/Poppins-Bold.ttf",
+                "Poppins/Poppins-BoldItalic.ttf",
+                "Poppins/Poppins-ExtraBold.ttf",
+                "Poppins/Poppins-ExtraBoldItalic.ttf",
+                "Poppins/Poppins-Black.ttf",
+                "Poppins/Poppins-BlackItalic.ttf",
+                "Atkinson_Hyperlegible/AtkinsonHyperlegible-Bold.ttf",
+                "Atkinson_Hyperlegible/AtkinsonHyperlegible-BoldItalic.ttf",
+                "M_PLUS_Rounded_1c/MPLUSRounded1c-ExtraBold.ttf",
+            ],
+        ),
+        stroke_color: str = Input(description="Stroke color", default="black"),
+        stroke_width: float = Input(description="Stroke width", default=2.6),
+        kerning: float = Input(description="Kerning for the subtitles", default=-5.0),
     ) -> List[Path]:
         """Run a single prediction on the model"""
         temp_dir = tempfile.mkdtemp()
@@ -77,6 +100,10 @@ class Predictor(BasePredictor):
                 MaxChars,
                 color,
                 wordlevel_info,
+                font,
+                stroke_color,
+                stroke_width,
+                kerning,
             )
             outputs.append(Path(outputfile))
         if output_transcript:
@@ -85,3 +112,10 @@ class Predictor(BasePredictor):
                 f.write(json.dumps(wordlevel_info, indent=4))
             outputs.append(Path(transcript_file_output))
         return outputs
+
+
+if __name__ == "__main__":
+    p = Predictor()
+    p.setup()
+    path = p.predict(video_file_input="kingnobel.mp4", kerning=5)
+    print(path)

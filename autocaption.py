@@ -118,6 +118,7 @@ def create_caption(
     font="Roboto/Roboto-Bold.ttf",
     stroke_color="black",
     stroke_width=2.6,
+    kerning=-5,
 ):
     wordcount = len(textJSON["textcontents"])
     full_duration = textJSON["end"] - textJSON["start"]
@@ -139,18 +140,17 @@ def create_caption(
     space_height = 0
 
     for index, wordJSON in enumerate(textJSON["textcontents"]):
-        bold_font_path = "Poppins/Poppins-ExtraBold.ttf"
-
         duration = wordJSON["end"] - wordJSON["start"]
         word_clip = (
             TextClip(
                 txt=wordJSON["word"],
-                font=bold_font_path,
+                font=font,
                 fontsize=fontsize,
                 color=color,
                 stroke_color=stroke_color,
                 stroke_width=stroke_width,
-                kerning=-5,
+                kerning=kerning,
+                # print_cmd=True,
             )
             .set_start(textJSON["start"])
             .set_duration(full_duration)
@@ -158,7 +158,12 @@ def create_caption(
 
         word_clip_space = (
             TextClip(
-                " ", font=bold_font_path, fontsize=fontsize, color=color, kerning=-5
+                " ",
+                font=font,
+                fontsize=fontsize,
+                color=color,
+                kerning=kerning,
+                # print_cmd=True,
             )
             .set_start(textJSON["start"])
             .set_duration(full_duration)
@@ -218,12 +223,13 @@ def create_caption(
         word_clip_highlight = (
             TextClip(
                 highlight_word["word"],
-                font=bold_font_path,
+                font=font,
                 fontsize=fontsize,
                 color=highlight_color,
                 stroke_color=stroke_color,
                 stroke_width=stroke_width,
-                kerning=-5,
+                kerning=kerning,
+                # print_cmd=True,
             )
             .set_start(highlight_word["start"])
             .set_duration(highlight_word["duration"])
@@ -245,6 +251,10 @@ def get_final_cliped_video(
     fontsize,
     opacity,
     color,
+    font,
+    stroke_color,
+    stroke_width,
+    kerning,
 ):
     input_video = VideoFileClip(videofilename)
     frame_size = input_video.size
@@ -253,7 +263,16 @@ def get_final_cliped_video(
 
     for line in linelevel_subtitles:
         out_clips, positions = create_caption(
-            line, frame_size, v_type, highlight_color, fontsize, color
+            line,
+            frame_size,
+            v_type,
+            highlight_color,
+            fontsize,
+            color,
+            font=font,
+            stroke_color=stroke_color,
+            stroke_width=stroke_width,
+            kerning=kerning,
         )
         # to increase space horizontally
         max_width = 0
@@ -307,6 +326,10 @@ def add_subtitle(
     MaxChars,
     color,
     wordlevel_info,
+    font,
+    stroke_color,
+    stroke_width,
+    kerning,
 ):
     print("video type is: " + v_type)
 
@@ -327,6 +350,10 @@ def add_subtitle(
         fontsize,
         opacity,
         color,
+        font,
+        stroke_color,
+        stroke_width,
+        kerning,
     )
     return outputfile
 
