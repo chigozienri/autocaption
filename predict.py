@@ -69,12 +69,16 @@ class Predictor(BasePredictor):
                 "Atkinson_Hyperlegible/AtkinsonHyperlegible-BoldItalic.ttf",
                 "M_PLUS_Rounded_1c/MPLUSRounded1c-ExtraBold.ttf",
                 "Arial/Arial_Bold.ttf",
-                "Arial/Arial_BoldItalic.ttf"
+                "Arial/Arial_BoldItalic.ttf",
             ],
         ),
         stroke_color: str = Input(description="Stroke color", default="black"),
         stroke_width: float = Input(description="Stroke width", default=2.6),
         kerning: float = Input(description="Kerning for the subtitles", default=-5.0),
+        right_to_left: bool = Input(
+            description="Right to left subtitles, for right to left languages. Only Arial fonts are supported.",
+            default=False,
+        ),
     ) -> List[Path]:
         """Run a single prediction on the model"""
         temp_dir = tempfile.mkdtemp()
@@ -92,6 +96,9 @@ class Predictor(BasePredictor):
             wordlevel_info = autocaption.transcribe_audio(self.model, audiofilename)
         outputs = []
         if output_video:
+            if right_to_left:
+                if "Arial" not in font:
+                    raise RuntimeError("Right to left subtitles only work with Arial")
             outputfile = autocaption.add_subtitle(
                 videofilename,
                 "other aspect ratio",  # v_type is unused
@@ -106,6 +113,7 @@ class Predictor(BasePredictor):
                 stroke_color,
                 stroke_width,
                 kerning,
+                right_to_left,
             )
             outputs.append(Path(outputfile))
         if output_transcript:

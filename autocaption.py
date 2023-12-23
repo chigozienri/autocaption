@@ -119,6 +119,7 @@ def create_caption(
     stroke_color="black",
     stroke_width=2.6,
     kerning=-5,
+    right_to_left=False,
 ):
     wordcount = len(textJSON["textcontents"])
     full_duration = textJSON["end"] - textJSON["start"]
@@ -138,8 +139,12 @@ def create_caption(
     fontsize = int(frame_height * fontsize / 100)  # 5 percent of video height for Reels
     space_width = 0
     space_height = 0
+    if right_to_left:
+        enumerator = enumerate(reversed(textJSON["textcontents"]))
+    else:
+        enumerator = enumerate(textJSON["textcontents"])
 
-    for index, wordJSON in enumerate(textJSON["textcontents"]):
+    for index, wordJSON in enumerator:
         duration = wordJSON["end"] - wordJSON["start"]
         word_clip = (
             TextClip(
@@ -255,6 +260,7 @@ def get_final_cliped_video(
     stroke_color,
     stroke_width,
     kerning,
+    right_to_left,
 ):
     input_video = VideoFileClip(videofilename)
     frame_size = input_video.size
@@ -273,6 +279,7 @@ def get_final_cliped_video(
             stroke_color=stroke_color,
             stroke_width=stroke_width,
             kerning=kerning,
+            right_to_left=right_to_left,
         )
         # to increase space horizontally
         max_width = 0
@@ -330,6 +337,7 @@ def add_subtitle(
     stroke_color,
     stroke_width,
     kerning,
+    right_to_left,
 ):
     print("video type is: " + v_type)
 
@@ -354,6 +362,7 @@ def add_subtitle(
         stroke_color,
         stroke_width,
         kerning,
+        right_to_left,
     )
     return outputfile
 
