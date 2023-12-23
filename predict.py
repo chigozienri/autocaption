@@ -68,6 +68,8 @@ class Predictor(BasePredictor):
                 "Atkinson_Hyperlegible/AtkinsonHyperlegible-Bold.ttf",
                 "Atkinson_Hyperlegible/AtkinsonHyperlegible-BoldItalic.ttf",
                 "M_PLUS_Rounded_1c/MPLUSRounded1c-ExtraBold.ttf",
+                "Arial/Arial_Bold.ttf",
+                "Arial/Arial_BoldItalic.ttf"
             ],
         ),
         stroke_color: str = Input(description="Stroke color", default="black"),
