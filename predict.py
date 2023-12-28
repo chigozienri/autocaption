@@ -82,6 +82,9 @@ class Predictor(BasePredictor):
             description="Right to left subtitles, for right to left languages. Only Arial fonts are supported.",
             default=False,
         ),
+        translate: bool = Input(
+            description="Translate the subtitles to English", default=False
+        ),
     ) -> List[Path]:
         """Run a single prediction on the model"""
         temp_dir = tempfile.mkdtemp()
@@ -96,7 +99,9 @@ class Predictor(BasePredictor):
                 wordlevel_info = json.loads(f.read())
         else:
             audiofilename = autocaption.create_audio(videofilename)
-            wordlevel_info = autocaption.transcribe_audio(self.model, audiofilename)
+            wordlevel_info = autocaption.transcribe_audio(
+                self.model, audiofilename, translate=translate
+            )
         outputs = []
         if output_video:
             if right_to_left:
