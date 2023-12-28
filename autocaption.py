@@ -6,6 +6,7 @@ import time
 import arabic_reshaper
 import ffmpeg
 import numpy as np
+from bidi.algorithm import get_display
 from faster_whisper import WhisperModel
 from moviepy.editor import ColorClip, CompositeVideoClip, TextClip, VideoFileClip
 
@@ -148,7 +149,7 @@ def create_caption(
     for index, wordJSON in enumerator:
         duration = wordJSON["end"] - wordJSON["start"]
         word = (
-            arabic_reshaper.reshape(wordJSON["word"])
+            get_display(arabic_reshaper.reshape(wordJSON["word"]))
             if right_to_left
             else wordJSON["word"]
         )
@@ -233,7 +234,7 @@ def create_caption(
 
     for highlight_word in xy_textclips_positions:
         word = (
-            arabic_reshaper.reshape(highlight_word["word"])
+            get_display(arabic_reshaper.reshape(highlight_word["word"]))
             if right_to_left
             else highlight_word["word"]
         )
