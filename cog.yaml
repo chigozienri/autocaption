@@ -33,6 +33,7 @@ build:
     - "setuptools==58.1.0"
     - "spacytextblob==4.0.0"
     - "SpeechRecognition==3.10.0"
+    - "arabic-reshaper==3.0.0"
     # - "streamlit==1.25.0"
     # - "streamlit_extras==0.3.0"
 

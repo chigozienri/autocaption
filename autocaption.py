@@ -3,6 +3,7 @@ import os
 import tempfile
 import time
 
+import arabic_reshaper
 import ffmpeg
 import numpy as np
 from faster_whisper import WhisperModel
@@ -146,9 +147,15 @@ def create_caption(
 
     for index, wordJSON in enumerator:
         duration = wordJSON["end"] - wordJSON["start"]
+        word = (
+            arabic_reshaper.reshape(wordJSON["word"])
+            if right_to_left
+            else wordJSON["word"]
+        )
+
         word_clip = (
             TextClip(
-                txt=wordJSON["word"],
+                txt=word,
                 font=font,
                 fontsize=fontsize,
                 color=color,
@@ -225,9 +232,14 @@ def create_caption(
         word_clips.append(word_clip_space)
 
     for highlight_word in xy_textclips_positions:
+        word = (
+            arabic_reshaper.reshape(highlight_word["word"])
+            if right_to_left
+            else highlight_word["word"]
+        )
         word_clip_highlight = (
             TextClip(
-                highlight_word["word"],
+                word,
                 font=font,
                 fontsize=fontsize,
                 color=highlight_color,
