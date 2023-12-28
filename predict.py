@@ -70,6 +70,9 @@ class Predictor(BasePredictor):
                 "M_PLUS_Rounded_1c/MPLUSRounded1c-ExtraBold.ttf",
                 "Arial/Arial_Bold.ttf",
                 "Arial/Arial_BoldItalic.ttf",
+                "Tajawal/Tajawal-Bold.ttf",
+                "Tajawal/Tajawal-ExtraBold.ttf",
+                "Tajawal/Tajawal-Black.ttf",
             ],
         ),
         stroke_color: str = Input(description="Stroke color", default="black"),
@@ -97,8 +100,10 @@ class Predictor(BasePredictor):
         outputs = []
         if output_video:
             if right_to_left:
-                if "Arial" not in font:
-                    raise RuntimeError("Right to left subtitles only work with Arial")
+                if "Arial" not in font and "Tajawal" not in font:
+                    raise RuntimeError(
+                        "Right to left subtitles only work with Arial or Tajawal fonts"
+                    )
             outputfile = autocaption.add_subtitle(
                 videofilename,
                 "other aspect ratio",  # v_type is unused
