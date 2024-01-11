@@ -306,6 +306,10 @@ def get_final_cliped_video(
             clip_to_overlay = clip_to_overlay.set_position(
                 ("center", 0.75), relative=True
             )
+        else if subs_position == "center":
+            clip_to_overlay = clip_to_overlay.set_position(
+                ("center", "center"), relative=True
+            )
         else:
             clip_to_overlay = clip_to_overlay.set_position(subs_position)
 
