@@ -70,6 +70,9 @@ class Predictor(BasePredictor):
                 "M_PLUS_Rounded_1c/MPLUSRounded1c-ExtraBold.ttf",
                 "Arial/Arial_Bold.ttf",
                 "Arial/Arial_BoldItalic.ttf",
+                "Tajawal/Tajawal-Bold.ttf",
+                "Tajawal/Tajawal-ExtraBold.ttf",
+                "Tajawal/Tajawal-Black.ttf"
             ],
         ),
         stroke_color: str = Input(description="Stroke color", default="black"),

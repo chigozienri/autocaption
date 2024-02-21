@@ -1,35 +1,65 @@
 import json
+import mimetypes
 import os
 import tempfile
 import time
+from urllib.parse import urlparse
 
 import ffmpeg
 import numpy as np
+import requests
 from faster_whisper import WhisperModel
-from moviepy.editor import ColorClip, CompositeVideoClip, TextClip, VideoFileClip
+from moviepy.editor import (ColorClip, CompositeVideoClip, TextClip,
+                            VideoFileClip)
 
 start = time.time()
 
 directory = tempfile.gettempdir()
 
+def get_extension(filename_or_url):
+    # Check if it's a URL by looking for a scheme (e.g., http, https)
+    if urlparse(filename_or_url).scheme:
+        try:
+            # Send a HEAD request to get the headers
+            response = requests.head(filename_or_url, allow_redirects=True, timeout=5)
+            if 'Content-Type' in response.headers:
+                content_type = response.headers['Content-Type']
+                # Split the content type to remove any additional parameters (e.g., charset)
+                content_type = content_type.split(';')[0]
+                extension = mimetypes.guess_extension(content_type)
+                return extension or '.mp4'  # Default to .mp4 if MIME type lookup fails
+        except requests.RequestException as e:
+            print(f"Request failed: {e}")
+            return '.mp4'  # Default to .mp4 if request fails
+    else:
+        # Local file case: Use os.path.splitext to get the extension
+        return os.path.splitext(filename_or_url)[1]
 
 def create_audio(videofilename):
-    extension = os.path.splitext(videofilename)[1]
-    audiofilename = videofilename.replace(extension, ".mp3")
-
+    # Create a temporary file for the audio
+    temp_dir = tempfile.mkdtemp()
+    # Use NamedTemporaryFile to ensure the file is created, and delete=False to keep the file after closing
+    with tempfile.NamedTemporaryFile(suffix='.mp3', dir=temp_dir, delete=False) as tmpfile:
+        audiofilename = tmpfile.name
+    
     # Create the ffmpeg input stream
     input_stream = ffmpeg.input(videofilename)
 
     # Extract the audio stream from the input stream
-    audio = input_stream.audio
+    audio_stream = input_stream.audio
 
-    # Save the audio stream as an MP3 file
-    output_stream = ffmpeg.output(audio, audiofilename)
+    # Explicitly set the output format to 'mp3'
+    output_stream = ffmpeg.output(audio_stream, audiofilename, format='mp3')
 
-    # # Overwrite output file if it already exists
+    # Overwrite output file if it already exists
     output_stream = ffmpeg.overwrite_output(output_stream)
 
-    ffmpeg.run(output_stream)
+    # Run ffmpeg to extract the audio, catch any errors that occur
+    try:
+        ffmpeg.run(output_stream)
+    except ffmpeg.Error as e:
+        print(f"An error occurred during ffmpeg processing: {e}")
+        # Handle the error or clean up as needed
 
     return audiofilename
 
